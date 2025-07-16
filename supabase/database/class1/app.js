@@ -192,13 +192,13 @@ submitPost &&
 
 			if (authError || !user) throw authError || new Error('User not found.');
 
-			const { data, error } = await client.from('posts').insert([
+			const { data, error } = await client.from('posts').insert(
 				{
 					user_id: user.id,
 					title: userTitle,
 					description: userDescription,
 				},
-			]);
+			);
 
 			if (error) {
 				console.error(error);
@@ -232,4 +232,115 @@ submitPost &&
 			submitPost.disabled = false;
 		}
 	});
+
+
+
+//read all posts
+
+if (window.location.pathname == "/all-blogs.html") {
+	const current = document.getElementById("current")
+	current.style.textDecoration = "underline red";
+
+	try {
+
+		const readAllPosts = async () => {
+			const { data, error } = await client
+				.from('posts')
+				.select()
+			if (data) {
+				const box = document.getElementById("container")
+				console.log(box)
+
+
+				box.innerHTML = data.map(({ id, title, description }) =>
+
+				(`<div id='${id}' class="card bg-info text-white" style="width: 18rem;">
+						<div class="card-body">
+							<h5 class="card-title">${title}</h5>
+
+							<p class="card-text">${description} </p>
+
+						</div>
+					</div>`)
+				).join("")
+
+			}
+			else {
+				console.log(error)
+			}
+		}
+		readAllPosts()
+
+
+	}
+	catch (error) {
+		console.log(error)
+	}
+
+
+}
+
+if (window.location.pathname == "/my-blogs.html") {
+	const current = document.getElementById("current")
+	current.style.textDecoration = "underline red";
+
+	try {
+
+		const readAllPosts = async () => {
+			const { data: { user } } = await client.auth.getUser()
+			const { data, error } = await client
+				.from('posts')
+				.select()
+				.eq("user_id", user.id)
+			console.log(data)
+			if (data) {
+				const box = document.getElementById("container")
+				console.log(box)
+
+
+				box.innerHTML = data.map(({ id, title, description }) =>
+
+				(`<div id='${id}' class="card bg-info text-white" style="width: 18rem;">
+						<div class="card-body">
+							<h5 class="card-title">${title}</h5>
+
+							<p class="card-text">${description} </p>
+
+						</div>
+						<div class="d-flex gap-4 px-4">
+						<button type="button" class="btn btn-success">Edit</button>
+						<button type="button" id="deletePost"  class="btn btn-danger">Delete</button></div>
+					</div>`)
+				).join("")
+
+			}
+			else {
+				console.log(error)
+			}
+		}
+		readAllPosts()
+
+
+	}
+	catch (error) {
+		console.log(error)
+	}
+
+
+}
+
+//delete a post
+
+document.addEventListener("DOMContentLoaded", () => {
+	{
+
+		const deletePost = document.getElementById("deletePost")
+		console.log(deletePost)
+
+		deletePost && deletePost.addEventListener("click", () => {
+			console.log("hello")
+		})
+
+	}
+})
 
