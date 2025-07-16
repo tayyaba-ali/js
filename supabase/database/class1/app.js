@@ -6,14 +6,14 @@ const { createClient } = supabase;
 const client = createClient(supabaseUrl, supabaseKey);
 
 // Check and display user profile if logged in
-async function displayUserProfile() { 
+async function displayUserProfile() {
 	try {
 		const {
 			data: { user },
 			error,
 		} = await client.auth.getUser();
 		if (error) throw error;
-		console.log(user)
+		console.log(user);
 		if (user) {
 			if (document.getElementById('profile-avatar')) {
 				document.getElementById('profile-avatar').src =
@@ -21,15 +21,14 @@ async function displayUserProfile() {
 				document.getElementById('profile-name').textContent = user.user_metadata?.full_name || user.email;
 				document.getElementById('profile-email').textContent = user.email;
 			}
-			console.log(window.location.pathname.includes('index.html'))
+			console.log(window.location.pathname.includes('index.html'));
 			// todo
 			if (window.location.pathname.includes('index.html')) {
 				window.location.href = 'post.html';
 			}
-
 		} else if (!window.location.pathname.includes('index.html') && !window.location.pathname.includes('login.html')) {
 			window.location.href = 'index.html';
-		} 
+		}
 	} catch (error) {
 		console.error('Error:', error);
 		if (!window.location.pathname.includes('index.html') && !window.location.pathname.includes('login.html')) {
@@ -65,7 +64,7 @@ signupBtn &&
 					email: email.value,
 					password: password.value,
 				});
-				if (data) window.location.href = 'post.html'
+				if (data) window.location.href = 'post.html';
 
 				if (error) throw error;
 			} catch (error) {
@@ -77,14 +76,11 @@ signupBtn &&
 		} else {
 			if (email) {
 				alert('Please your password');
-
 			} else {
 				alert('Please your email');
-
 			}
 		}
 	});
-
 
 // Handle login form submission
 const loginBtn = document.getElementById('loginBtn');
@@ -157,4 +153,83 @@ document.addEventListener('DOMContentLoaded', async () => {
 		displayUserProfile();
 	}
 });
+
+// add a post
+const submitPost = document.getElementById('submitPost');
+const loaderOverlay = document.getElementById('loader-overlay');
+
+function showLoader() {
+	loaderOverlay.style.display = 'flex';
+}
+
+function hideLoader() {
+	loaderOverlay.style.display = 'none';
+}
+
+submitPost &&
+	submitPost.addEventListener('click', async () => {
+		const userTitle = document.getElementById('post-title').value.trim();
+		const userDescription = document.getElementById('postdescrib').value.trim();
+
+		if (!userTitle || !userDescription) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Missing Fields',
+				text: 'Please enter both a title and a description.',
+				confirmButtonColor: '#125b9a',
+			});
+			return;
+		}
+
+		showLoader();
+		submitPost.disabled = true;
+
+		try {
+			const {
+				data: { user },
+				error: authError,
+			} = await client.auth.getUser();
+
+			if (authError || !user) throw authError || new Error('User not found.');
+
+			const { data, error } = await client.from('posts').insert([
+				{
+					user_id: user.id,
+					title: userTitle,
+					description: userDescription,
+				},
+			]);
+
+			if (error) {
+				console.error(error);
+				Swal.fire({
+					icon: 'error',
+					title: 'Post Failed',
+					text: 'There was a problem creating the post.',
+					confirmButtonColor: '#125b9a',
+				});
+			} else {
+				Swal.fire({
+					icon: 'success',
+					title: 'Post Created',
+					text: 'Your post has been successfully created!',
+					timer: 1500,
+					showConfirmButton: false,
+				});
+				document.getElementById('post-title').value = '';
+				document.getElementById('postdescrib').value = '';
+			}
+		} catch (err) {
+			console.error(err);
+			Swal.fire({
+				icon: 'error',
+				title: 'Unexpected Error',
+				text: 'Something went wrong. Please try again.',
+				confirmButtonColor: '#125b9a',
+			});
+		} finally {
+			hideLoader();
+			submitPost.disabled = false;
+		}
+	});
 

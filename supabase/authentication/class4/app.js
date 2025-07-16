@@ -6,7 +6,7 @@ const { createClient } = supabase;
 const client = createClient(supabaseUrl, supabaseKey);
 
 // Check and display user profile if logged in
-async function displayUserProfile() {
+async function displayUserProfile() { 
 	try {
 		const {
 			data: { user },
@@ -29,7 +29,7 @@ async function displayUserProfile() {
 
 		} else if (!window.location.pathname.includes('index.html') && !window.location.pathname.includes('login.html')) {
 			window.location.href = 'index.html';
-		}
+		} 
 	} catch (error) {
 		console.error('Error:', error);
 		if (!window.location.pathname.includes('index.html') && !window.location.pathname.includes('login.html')) {
@@ -157,64 +157,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 		displayUserProfile();
 	}
 });
-
-// add a post
-
-const submitPost = document.getElementById(
-	"submitPost"
-)
-
-submitPost && submitPost.addEventListener("click", async () => {
-
-	const { data: { user } } = await client.auth.getUser();
-	const userTitle = document.getElementById("post-title").value
-	const userDescription = document.getElementById("postdescrib").value
-	console.log(typeof user.id);
-
-	// console.log(u.data.user.id)
-	const { data, error } = await client.from("posts").insert([
-		{
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}, {
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}, {
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		},
-		{
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}, {
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}, {
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}, {
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}, {
-			user_id: user.id,
-			title: userTitle,
-			description: userDescription,
-		}
-	])
-
-	if (data) {
-		alert("post has been created")
-		console.log(data)
-	}
-	else {
-		console.log(error)
-	}
-})
 
