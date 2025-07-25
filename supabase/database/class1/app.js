@@ -113,10 +113,17 @@ const loginWithGoogle = document.getElementById('loginWithGoogle');
 loginWithGoogle &&
 	loginWithGoogle.addEventListener('click', async () => {
 		try {
+
+			const redirectTo = window.location.hostname === 'localhost' 
+  ? window.location.origin + '/post.html'  // local dev
+  : window.location.origin + '/js/supabase/database/class1/'  // GitHub Pages
+
+
+
 			const { error } = await client.auth.signInWithOAuth({
 				provider: 'google',
 				options: {
-					redirectTo: window.location.origin + '/post.html',
+					redirectTo:  redirectTo,
 					queryParams: { access_type: 'offline', prompt: 'consent' },
 				},
 			});
